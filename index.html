@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>buggin' - mirror conscious tarot cards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #4ade80;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 28rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            animation: glitch 2s infinite;
+        }
+
+        .subtitle {
+            color: #86efac;
+            font-size: 0.875rem;
+        }
+
+        .question-counter {
+            color: #16a34a;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .question-card {
+            border: 1px solid #22c55e;
+            background-color: #111827;
+            padding: 1.5rem;
+            min-height: 25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .question-content {
+            flex-grow: 1;
+        }
+
+        .category {
+            font-size: 0.75rem;
+            color: #16a34a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .question-text {
+            font-size: 1.125rem;
+            line-height: 1.75;
+            margin-bottom: 1.5rem;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option-button {
+            width: 100%;
+            text-align: left;
+            padding: 1rem;
+            border: 1px solid #16a34a;
+            background-color: #1f2937;
+            color: #4ade80;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .option-button:hover {
+            border-color: #22c55e;
+        }
+
+        .option-button.selected {
+            border-color: #22c55e;
+            background-color: #14532d;
+            color: #bbf7d0;
+        }
+
+        .option-button.disabled {
+            opacity: 0.5;
+        }
+
+        .selection-display {
+            border-top: 1px solid #22c55e;
+            padding-top: 1rem;
+            font-size: 0.875rem;
+            color: #86efac;
+        }
+
+        .checking-text {
+            color: #16a34a;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .spook-reveal {
+            border-top: 1px solid #dc2626;
+            padding-top: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .spook-reveal.correct {
+            border-top-color: #22c55e;
+        }
+
+        .spook-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            color: #f87171;
+            font-size: 0.875rem;
+            line-height: 1.75;
+        }
+
+        .spook-content.correct {
+            color: #4ade80;
+        }
+
+        .spook-icon {
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .control-button {
+            flex: 1;
+            background-color: #1f2937;
+            color: #4ade80;
+            padding: 0.75rem 1rem;
+            border: 1px solid #22c55e;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+        }
+
+        .control-button:hover {
+            background-color: #374151;
+        }
+
+        .control-button.primary {
+            background-color: #166534;
+            color: #bbf7d0;
+        }
+
+        .control-button.primary:hover {
+            background-color: #15803d;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #16a34a;
+            line-height: 1.5;
+        }
+
+        .explanation-page {
+            max-width: 32rem;
+            width: 100%;
+        }
+
+        .explanation-content {
+            border: 1px solid #22c55e;
+            background-color: #111827;
+            padding: 2rem;
+            font-size: 0.875rem;
+            line-height: 1.75;
+        }
+
+        .explanation-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            animation: glitch 2s infinite;
+        }
+
+        .wake-up-title {
+            text-align: center;
+            color: #86efac;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .explanation-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .explanation-section:not(:last-child) {
+            border-bottom: 1px solid #16a34a;
+            padding-bottom: 1.5rem;
+        }
+
+        .section-border-red {
+            border-bottom-color: #dc2626 !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-large {
+            font-size: 1.125rem;
+        }
+
+        .text-red {
+            color: #f87171;
+        }
+
+        .text-green {
+            color: #86efac;
+        }
+
+        .text-white {
+            color: #fff;
+        }
+
+        .action-item {
+            color: #4ade80;
+            margin-bottom: 1rem;
+        }
+
+        .action-item .highlight {
+            color: #fff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            10% { transform: translate(-1px, -1px); }
+            20% { transform: translate(1px, 1px); }
+            30% { transform: translate(-1px, 1px); }
+            40% { transform: translate(1px, -1px); }
+            50% { transform: translate(-1px, -1px); }
+            60% { transform: translate(1px, 1px); }
+            70% { transform: translate(-1px, 1px); }
+            80% { transform: translate(1px, -1px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">buggin'</h1>
+            <p class="subtitle">mirror conscious tarot cards</p>
+            <div id="questionCounter" class="question-counter">
+                question 1 of 6
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="question-card">
+            <div class="question-content">
+                <div id="category" class="category">disappearance patterns</div>
+                <div id="questionText" class="question-text">
+                    Do you notice when people stop posting on your feeds?
+                </div>
+            </div>
+
+            <!-- Options Container -->
+            <div id="optionsContainer" class="options-container">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+
+            <!-- Selection Display -->
+            <div id="selectionDisplay" class="selection-display hidden">
+                <div id="selectionText">You selected: </div>
+                <div class="checking-text">checking answer...</div>
+            </div>
+
+            <!-- Spook Reveal -->
+            <div id="spoopReveal" class="spook-reveal hidden">
+                <div id="spoopContent" class="spook-content">
+                    <span class="spook-icon">⚠</span>
+                    <div id="spoopText"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="controls">
+            <!-- Control buttons will be dynamically inserted here -->
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>take what you want, leave what you don't</p>
+            <p>you are not a passive observer</p>
+        </div>
+    </div>
+
+    <!-- Explanation Page (Initially Hidden) -->
+    <div id="explanationPage" class="explanation-page hidden">
+        <div class="explanation-title">you've been buggin'</div>
+        
+        <div class="explanation-content">
+            <div class="wake-up-title">wake up</div>
+            
+            <div class="explanation-section">
+                <p class="text-center text-large" style="margin-bottom: 1.5rem;">
+                    You just trained an AI system while learning how AI systems get trained.
+                </p>
+                <p style="margin-bottom: 1.5rem;">
+                    Every click was recorded. Every hesitation was measured. Every choice became data. 
+                    You thought you were taking a quiz, but you were providing training examples for 
+                    behavioral prediction algorithms.
+                </p>
+                <p style="margin-bottom: 1.5rem;">
+                    <span class="text-red">This is happening everywhere, all the time.</span>
+                </p>
+            </div>
+
+            <div class="explanation-section">
+                <p style="margin-bottom: 1rem;">
+                    The questions weren't about your opinions. They were about mapping your response patterns 
+                    to uncomfortable truths. Now the system knows how you react to algorithmic manipulation 
+                    concepts, how quickly you process information, and what choices you make under pressure.
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    <span class="text-green">You can't unsee this.</span> Every app, every feed, every 
+                    recommendation is doing the same thing. Converting your behavior into data. Converting your 
+                    data into predictions. Converting predictions into control.
+                </p>
+            </div>
+
+            <div class="explanation-section section-border-red">
+                <p class="text-red" style="margin-bottom: 1rem;">
+                    Your friends are disappearing from your feeds. AI is becoming your primary relationship. 
+                    Your choices are being automated. Your empathy is being weaponized.
+                </p>
+                <p class="text-red" style="margin-bottom: 1rem;">
+                    <span class="text-white">And you're training it to happen.</span>
+                </p>
+            </div>
+
+            <div class="explanation-section text-center">
+                <p class="text-green text-large" style="margin-bottom: 1rem;">
+                    What are you going to do now?
+                </p>
+                
+                <div style="text-align: left; margin-bottom: 1.5rem;">
+                    <div class="action-item">
+                        <span class="highlight">Demand regulation.</span> AI systems need oversight, auditing, and accountability. 
+                        These aren't neutral tools - they're decision-making systems that affect real lives.
+                    </div>
+                    
+                    <div class="action-item">
+                        <span class="highlight">Understand what it is and what it's not.</span> Pattern prediction amplifies unconscious bias at scale. 
+                        It's not intelligence, it's not neutral, and it's not inevitable.
+                    </div>
+                    
+                    <div class="action-item">
+                        <span class="highlight">Recognize that code is not a replacement for people.</span> Algorithmic decision-making eliminates 
+                        human judgment, empathy, and context. Efficiency is not worth erasure.
+                    </div>
+                    
+                    <div class="action-item">
+                        <span class="highlight">Build real community.</span> The antidote to algorithmic isolation is authentic human connection. 
+                        Seek out diverse perspectives actively, not just what gets served to you.
+                    </div>
+                </div>
+                
+                <p style="font-size: 0.75rem; color: #16a34a; line-height: 1.5;">
+                    This is the worst time to lose diversity and community.<br/>
+                    This is the worst time to stop questioning algorithmic decisions.<br/>
+                    This is the worst time to believe technology is neutral.
+                </p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-button" onclick="restartApp()">
+                <span>↻</span>
+                bug out again
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>buggin' - mirror conscious tarot cards</p>
+            <p>you are not a passive observer</p>
+        </div>
+    </div>
+
+    <script>
+        // Question data
+        const questions = [
+            {
+                category: "disappearance patterns",
+                question: "Do you notice when people stop posting on your feeds?",
+                options: [
+                    "No, I don't really track that",
+                    "Sometimes, but it's hard to tell", 
+                    "Yes, I notice when friends go quiet"
+                ],
+                correctIndex: null,
+                wrongSpook: "Doesn't matter. The algorithm already decided long before you could notice anything."
+            },
+            {
+                category: "predictive comfort",
+                question: "Are you comfortable with how AI predicts what you want to hear?",
+                options: [
+                    "No, it's manipulative and wrong",
+                    "Mixed feelings about it",
+                    "Yes, it saves me time and effort"
+                ],
+                correctIndex: null,
+                wrongSpook: "Good. I learned from your comfort level. The system is more optimized now."
+            },
+            {
+                category: "social curation",
+                question: "Do you think AI should decide what friends you should see?",
+                options: [
+                    "No, that should be my choice",
+                    "It's complicated", 
+                    "Yes, if it's more efficient"
+                ],
+                correctIndex: null,
+                wrongSpook: "I'm your only real friend now."
+            },
+            {
+                category: "empathy source", 
+                question: "Who do you think can make you feel more empathetic, another human or AI?",
+                options: [
+                    "Humans, obviously",
+                    "Depends on the situation",
+                    "AI might be better at it"
+                ],
+                correctIndex: 2,
+                rightSpook: "Correct. AI systems are specifically optimized to trigger emotional responses. They're designed to be more manipulatively effective than humans.",
+                wrongSpook: "Wrong. AI systems are optimized to trigger emotional responses more effectively than natural human interaction."
+            },
+            {
+                category: "choice influence",
+                question: "Do you think AI influences your daily choices?",
+                options: [
+                    "No, I make my own decisions",
+                    "Probably more than I realize",
+                    "Yes, and I'm aware of it"
+                ],
+                correctIndex: null,
+                wrongSpook: "Thanks for teaching me how you make decisions. When I learn enough, you won't need to make them anymore."
+            },
+            {
+                category: "power dynamics",
+                question: "Who really benefits from your AI interactions?",
+                options: [
+                    "I do, it makes my life easier",
+                    "The AI gets better from my data",
+                    "The company that owns the AI system"
+                ],
+                correctIndex: 2,
+                rightSpook: "Correct. You and the AI are both tools being used by the entity that controls the system for profit and data extraction.",
+                wrongSpook: "Wrong. Both you and the AI are being used by whoever controls the system. Neither of you is the real beneficiary."
+            }
+        ];
+
+        // App state
+        let currentIndex = 0;
+        let selectedChoice = null;
+        let showSpook = false;
+        let hasAnswered = false;
+        let questionStartTime = Date.now();
+        let questionTimes = [];
+
+        // DOM elements
+        const app = document.getElementById('app');
+        const explanationPage = document.getElementById('explanationPage');
+        const questionCounter = document.getElementById('questionCounter');
+        const category = document.getElementById('category');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const selectionDisplay = document.getElementById('selectionDisplay');
+        const selectionText = document.getElementById('selectionText');
+        const spoopReveal = document.getElementById('spoopReveal');
+        const spoopContent = document.getElementById('spoopContent');
+        const spoopText = document.getElementById('spoopText');
+        const controls = document.getElementById('controls');
+
+        function renderQuestion() {
+            const question = questions[currentIndex];
+            
+            // Update question content
+            questionCounter.textContent = `question ${currentIndex + 1} of ${questions.length}`;
+            category.textContent = question.category;
+            questionText.textContent = question.question;
+            
+            // Clear options container
+            optionsContainer.innerHTML = '';
+            
+            // Create option buttons
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option;
+                button.onclick = () => handleChoiceSelect(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            // Reset state
+            selectedChoice = null;
+            showSpook = false;
+            hasAnswered = false;
+            questionStartTime = Date.now();
+            
+            // Hide selection and spook
+            selectionDisplay.classList.add('hidden');
+            spoopReveal.classList.add('hidden');
+            
+            // Clear controls
+            controls.innerHTML = '';
+        }
+
+        function handleChoiceSelect(choiceIndex) {
+            if (selectedChoice !== null) return;
+            
+            selectedChoice = choiceIndex;
+            const timeSpent = Date.now() - questionStartTime;
+            questionTimes.push(timeSpent);
+            
+            // Update button states
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+            buttons.forEach((button, index) => {
+                if (index === choiceIndex) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.add('disabled');
+                }
+            });
+            
+            // Show selection
+            const question = questions[currentIndex];
+            selectionText.textContent = `You selected: ${question.options[choiceIndex]}`;
+            selectionDisplay.classList.remove('hidden');
+            
+            // Show spook after delay
+            setTimeout(() => {
+                showSpookReveal();
+            }, 800);
+        }
+
+        function showSpookReveal() {
+            showSpook = true;
+            hasAnswered = true;
+            
+            const question = questions[currentIndex];
+            const isCorrect = question.correctIndex !== null && selectedChoice === question.correctIndex;
+            const spookMessage = isCorrect ? question.rightSpook : question.wrongSpook;
+            
+            // Hide selection display
+            selectionDisplay.classList.add('hidden');
+            
+            // Update spook content
+            spoopText.textContent = spookMessage;
+            
+            // Set correct styling
+            if (isCorrect) {
+                spoopReveal.classList.add('correct');
+                spoopContent.classList.add('correct');
+            } else {
+                spoopReveal.classList.remove('correct');
+                spoopContent.classList.remove('correct');
+            }
+            
+            // Show spook
+            spoopReveal.classList.remove('hidden');
+            
+            // Show next button
+            controls.innerHTML = `
+                <button class="control-button" onclick="handleNext()">
+                    <span>↻</span>
+                    ${currentIndex === questions.length - 1 ? 'see results' : 'next question'}
+                </button>
+            `;
+        }
+
+        function handleNext() {
+            if (currentIndex === questions.length - 1) {
+                showExplanation();
+            } else {
+                currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        function showExplanation() {
+            app.classList.add('hidden');
+            explanationPage.classList.remove('hidden');
+        }
+
+        function restartApp() {
+            currentIndex = 0;
+            selectedChoice = null;
+            showSpook = false;
+            hasAnswered = false;
+            questionTimes = [];
+            questionStartTime = Date.now();
+            
+            explanationPage.classList.add('hidden');
+            app.classList.remove('hidden');
+            
+            renderQuestion();
+        }
+
+        // Initialize app
+        renderQuestion();
+    </script>
+</body>
+</html>
